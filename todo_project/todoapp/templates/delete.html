@@ -1,0 +1,33 @@
+{% comment %} <h3 class="task-title" >Are you sure want to delete "{{item}}"?</h3>
+<a href="{% url 'index' %}" class="cancel-button">Cancel</a>
+<form method='POST' action=''>
+    {% csrf_token %}
+    <h4>{{form.title}}</h4>
+    <input type ='submit' name = "Submit" class="submit-button">
+</form> {% endcomment %}
+<!-- delete.html -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Delete Task</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/delete.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h3 class="task-title">Are you sure you want to delete "{{ item }}"?</h3>
+        <form method="POST" action="">
+            {% csrf_token %}
+            <h4>{{ form.title }}</h4>
+            <input type="submit" name="Submit" class="submit-button">
+            <a href="{% url 'index' %}" class="cancel-button">Cancel</a>
+
+        </form>
+    </div>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

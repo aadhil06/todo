@@ -1,0 +1,40 @@
+{% load static %}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Index Page</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    </head>
+    <body>
+        <form method='POST' action='index'>
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="taskTitle">Task Title</label>
+                <input type="text" class="form-control" id="taskTitle" name="title" placeholder="Enter task title">
+            </div>    
+            <button type="submit" class="btn btn-success">Create Task</button>
+            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>    
+        </form>
+
+        {% for task in tasks %} 
+        <div>
+            <p><h3>{{task.title}}</h3></p>
+            <a href="{% url 'update' task.id %}" class="btn btn-primary">Update</a>
+            <a href="{% url 'delete' task.id %}" class="btn btn-danger">Delete</a>
+
+            {% if task.completed == True %}
+            <strike>{{task}}</strike>
+            {% else %}
+            <span>{{task}}</span>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
+</html>
