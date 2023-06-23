@@ -1,8 +1,9 @@
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.shortcuts import render,redirect,HttpResponse
+from django.core.paginator import Paginator
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
 from .models import *
 from .forms import *
 # Create your views here.
@@ -36,35 +37,53 @@ def user_login(request):
         user=authenticate(username=username,password=password)
         if user is not None:
             login(request, user)
-            # return redirect('index')
-            return JsonResponse({
-                'success': True,
-            },safe=False)
+            return redirect('index')
 
-        # return HttpResponse("Invalid Credentials!!")
-        return JsonResponse({
-            'success': False,
-        },safe=False)
+        return HttpResponse("Invalid Credentials!!")
 
     return render(request,'login.html')
 
+# @login_required(login_url = 'login')
+# def index(request):
+#     tasks = Task.objects.all()
+#     form = TaskForm()
+    
+#     if request.method == 'POST':
+#         form = TaskForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#         return redirect('index')
+        
+#     contexts = {
+#         "tasks":tasks,
+#         "form": form
+#     }
+#     return render(request,'index.html',contexts)
 
-@login_required(login_url = 'login')
+@login_required(login_url='login')
 def index(request):
     tasks = Task.objects.all()
-    form = TaskForm()
+    paginator = Paginator(tasks, 4)
     
-    if request.method == 'POST':
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    form = TaskForm()
+
+    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
         form = TaskForm(request.POST)
         if form.is_valid():
             form.save()
-        return redirect('index')
-        
-    contexts = {
-        "tasks":tasks,
+
+        return JsonResponse({
+            'msg': 'Success'
+        })
+
+    context = {
+        "page_obj": page_obj,
         "form": form
     }
-    return render(request,'index.html',contexts)
+    return render(request, 'index.html', context)
 
 
 @login_required(login_url = 'login')

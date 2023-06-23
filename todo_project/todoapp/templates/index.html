@@ -1,4 +1,4 @@
-{% load static %}
+{% comment %} {% load static %}
 <html>
     <head>
         <meta charset="utf-8">
@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="{% static 'css/index.css' %}">
     </head>
     <body>
-        <form method='POST' action='index'>
+        <form method='POST' action='index' id='form'>
             {% csrf_token %}
             <div class="form-group">
                 <label for="taskTitle">Task Title</label>
@@ -20,6 +20,7 @@
             <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>    
         </form>
 
+    <div id="task-list">
         {% for task in tasks %} 
         <div>
             <p><h3>{{task.title}}</h3></p>
@@ -34,7 +35,121 @@
 
         </div>
         {% endfor %}
-
+    </div>
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script>
+            const form = document.getElementById("form");
+            form.addEventListener("submit", submitHandler);
+    
+            function submitHandler(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: '{% url 'index' %}',
+                    data: $('#form').serialize(),
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.msg === 'Success'){
+                            form.reset();
+                            alert("Form is submitted successfully")
+                        }
+                    }
+                })
+    
+            }
+                    
+        </script>                    
     </body>
+</html> {% endcomment %}
+{% load static %}
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Index Page</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+<body>
+    <form method="POST" action="{% url 'index' %}" id="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="taskTitle">Task Title</label>
+            <input type="text" class="form-control" id="taskTitle" name="title" placeholder="Enter task title">
+        </div>
+        <button type="submit" class="btn btn-success">Create Task</button>
+        <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+    </form>
+
+    <div id="task-list">
+        {% for task in page_obj %}
+        <div>
+            <p><h3>{{ task.title }}</h3></p>
+            <a href="{% url 'update' task.id %}" class="btn btn-primary">Update</a>
+            <a href="{% url 'delete' task.id %}" class="btn btn-danger">Delete</a>
+
+            {% if task.completed %}
+                <strike>{{ task }}</strike>
+            {% else %}
+                <span>{{ task }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+        </li>
+        {% else %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const form = document.getElementById("form");
+        form.addEventListener("submit", submitHandler);
+
+        function submitHandler(e) {
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: '{% url 'index' %}',
+                data: $('#form').serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    if (data.msg === 'Success') {
+                        form.reset();
+                        alert("Form is submitted successfully")
+                    }
+                }
+            })
+        }
+    </script>
+</body>
 </html>
